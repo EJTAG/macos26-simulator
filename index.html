@@ -1,82 +1,515 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AuroralisOS</title>
-    <meta name="description" content="AuroralisOS — a next-generation operating system ecosystem with multi-device support and cloud integration.">
-    <link rel="stylesheet" href="styles/main.css">
+  <meta charset="UTF-8" />
+  <title>AuroralisOS Setup</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
+    body {
+      background: #050509;
+      color: #f5f5f7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .hidden { display: none !important; }
+
+    /* Setup Container */
+    .setup-shell {
+      width: 900px;
+      max-width: 100%;
+      background: radial-gradient(circle at top, #1b1b2f 0, #050509 55%);
+      border-radius: 24px;
+      padding: 32px 40px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.7);
+      position: relative;
+      overflow: hidden;
+    }
+    .setup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .setup-title {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+    .mode-toggle {
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.15);
+      cursor: pointer;
+      background: rgba(255,255,255,0.04);
+    }
+    .setup-body {
+      min-height: 260px;
+    }
+    .step-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .step-subtitle {
+      font-size: 14px;
+      color: #a1a1b3;
+      margin-bottom: 20px;
+    }
+
+    /* Lists */
+    .list {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(5,5,9,0.7);
+      backdrop-filter: blur(18px);
+    }
+    .list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.08s ease;
+    }
+    .list-item:last-child {
+      border-bottom: none;
+    }
+    .list-item:hover {
+      background: rgba(255,255,255,0.04);
+      transform: translateY(-1px);
+    }
+    .checkmark {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+    .checkmark.active {
+      border-color: #0a84ff;
+      background: #0a84ff;
+      color: white;
+    }
+
+    /* Footer Buttons */
+    .footer {
+      margin-top: 24px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .btn {
+      padding: 8px 18px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-primary {
+      background: #0a84ff;
+      color: white;
+      box-shadow: 0 8px 20px rgba(10,132,255,0.4);
+    }
+    .btn-primary:disabled {
+      opacity: 0.4;
+      box-shadow: none;
+      cursor: default;
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.06);
+      color: #f5f5f7;
+    }
+
+    /* Popup */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .alert {
+      width: 360px;
+      max-width: 90%;
+      background: #111119;
+      border-radius: 18px;
+      padding: 20px 22px 16px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.8);
+    }
+    .alert-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .alert-body {
+      font-size: 13px;
+      color: #b5b5c7;
+      margin-bottom: 16px;
+    }
+    .alert-footer {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    /* Progress Bar */
+    .progress-bar-shell {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      overflow: hidden;
+      margin-top: 12px;
+      margin-bottom: 8px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg,#0a84ff,#30d158);
+      transition: width 0.2s linear;
+    }
+
+    /* Device Carousel */
+    .carousel-shell {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .carousel-arrow {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      background: rgba(255,255,255,0.03);
+    }
+    .carousel-track {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+    .device-card {
+      min-width: 220px;
+      max-width: 220px;
+      border-radius: 18px;
+      padding: 16px;
+      margin-right: 12px;
+      background: rgba(5,5,9,0.9);
+      border: 1px solid rgba(255,255,255,0.12);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      position: relative;
+    }
+    .device-card.recommended {
+      box-shadow: 0 0 0 1px rgba(10,132,255,0.5);
+    }
+    .device-card.selected {
+      border-color: #0a84ff;
+      box-shadow: 0 0 0 2px rgba(10,132,255,0.8);
+      transform: translateY(-2px);
+    }
+    .device-name {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .device-type {
+      font-size: 12px;
+      color: #a1a1b3;
+      margin-bottom: 10px;
+    }
+    .device-tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #c7c7ff;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+    .device-reco-label {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(10,132,255,0.2);
+      color: #d0e6ff;
+    }
+    .device-icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+    .device-check {
+      align-self: flex-end;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+    .device-check.active {
+      border-color: #0a84ff;
+      background: #0a84ff;
+      color: white;
+    }
+  </style>
 </head>
+
 <body>
 
-<header class="nav">
-    <div class="nav-inner">
-        <a href="index.html" class="logo">AuroralisOS</a>
-        <nav class="nav-links">
-            <a href="desktop.html">Desktop</a>
-            <a href="mobile.html">Mobile</a>
-            <a href="tablet.html">Tablet</a>
-            <a href="tv.html">TV</a>
-        </nav>
-    </div>
-</header>
+<script>
+/* ============================================================
+   BOOT LOGIC — SKIP SETUP IF ALREADY COMPLETED
+   ============================================================ */
 
-<main>
-    <section class="hero">
-        <div class="hero-content">
-            <h1>AuroralisOS</h1>
-            <p>A next‑generation operating system ecosystem designed to feel unified across every screen.</p>
-            <div class="hero-actions">
-                <a class="btn primary" href="desktop.html">View Desktop</a>
-                <a class="btn ghost" href="mobile.html">View Mobile</a>
+const setupDone = localStorage.getItem("auroralisSetupComplete");
+const savedDevice = localStorage.getItem("auroralisDevice");
+
+if (setupDone === "true" && savedDevice) {
+    if (savedDevice === "AuroPC" || savedDevice === "AuroraBook") {
+        window.location.href = "desktop.html#lock";
+    } else if (savedDevice === "AuroPhone") {
+        window.location.href = "mobile.html#lock";
+    } else if (savedDevice === "AuroPad") {
+        window.location.href = "tablet.html#lock";
+    } else if (savedDevice === "AuroralisTV") {
+        window.location.href = "tv.html#lock";
+    }
+}
+</script>
+
+<!-- SETUP UI -->
+<div class="setup-shell" id="setupShell">
+
+  <div class="setup-header">
+    <div class="setup-title">AuroralisOS Setup</div>
+    <button class="mode-toggle" id="modeToggle">Dark Mode</button>
+  </div>
+
+  <div class="setup-body" id="stepContainer"></div>
+
+  <div class="footer">
+    <button class="btn btn-secondary" id="backBtn">Back</button>
+    <button class="btn btn-primary" id="nextBtn" disabled>Continue</button>
+  </div>
+
+  <div class="overlay hidden" id="overlay">
+    <div class="alert" id="alertBox"></div>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   SETUP STATE MACHINE
+   ============================================================ */
+
+const Steps = {
+  LANGUAGE: 0,
+  REGION: 1,
+  WIFI: 2,
+  CLOUD_ERROR: 3,
+  ELIGIBILITY: 4,
+  DEVICE_SELECT: 5,
+  DONE: 6
+};
+
+let state = {
+  step: Steps.LANGUAGE,
+  language: null,
+  region: null,
+  wifiChoice: null,
+  wifiCustomName: "",
+  wifiPasswordVisible: false,
+  customPasswordVisible: false,
+  device: null,
+  eligibilityResult: null
+};
+
+const stepContainer = document.getElementById("stepContainer");
+const backBtn = document.getElementById("backBtn");
+const nextBtn = document.getElementById("nextBtn");
+const overlay = document.getElementById("overlay");
+const alertBox = document.getElementById("alertBox");
+const modeToggle = document.getElementById("modeToggle");
+
+let darkMode = true;
+modeToggle.addEventListener("click", () => {
+  darkMode = !darkMode;
+  document.body.style.background = darkMode ? "#050509" : "#f5f5f7";
+  document.body.style.color = darkMode ? "#f5f5f7" : "#111";
+  modeToggle.textContent = darkMode ? "Dark Mode" : "Light Mode";
+});
+
+function render() {
+  nextBtn.disabled = true;
+  backBtn.style.visibility = state.step === Steps.LANGUAGE ? "hidden" : "visible";
+
+  switch (state.step) {
+    case Steps.LANGUAGE: renderLanguage(); break;
+    case Steps.REGION: renderRegion(); break;
+    case Steps.WIFI: renderWifi(); break;
+    case Steps.CLOUD_ERROR: renderCloudError(); break;
+    case Steps.ELIGIBILITY: renderEligibility(); break;
+    case Steps.DEVICE_SELECT: renderDeviceSelect(); break;
+    case Steps.DONE: renderDone(); break;
+  }
+}
+
+/* ============================================================
+   STEP 1 — LANGUAGE
+   ============================================================ */
+
+function renderLanguage() {
+  stepContainer.innerHTML = `
+    <div class="step-title">Choose your language</div>
+    <div class="step-subtitle">Scroll and select your preferred language.</div>
+    <div class="list">
+      ${["English (US)", "English (UK)", "Spanish", "French", "German", "Japanese", "Korean"]
+        .map(lang => `
+          <div class="list-item" data-lang="${lang}">
+            <div>${lang}</div>
+            <div class="checkmark ${state.language === lang ? "active" : ""}">
+              ${state.language === lang ? "✓" : ""}
             </div>
-        </div>
-    </section>
-
-    <section class="section">
-        <div class="section-inner">
-            <h2>One ecosystem. Multiple experiences.</h2>
-            <p class="section-subtitle">
-                AuroralisOS is built to scale—from focused desktop workflows to quick mobile interactions and immersive TV experiences.
-            </p>
-
-            <div class="grid features-grid">
-                <a class="card card-link" href="desktop.html">
-                    <h3>Desktop</h3>
-                    <p>For creation, productivity, and development on larger displays.</p>
-                </a>
-                <a class="card card-link" href="mobile.html">
-                    <h3>Mobile</h3>
-                    <p>For communication, quick tasks, and on‑the‑go access.</p>
-                </a>
-                <a class="card card-link" href="tablet.html">
-                    <h3>Tablet</h3>
-                    <p>For reading, sketching, and immersive media experiences.</p>
-                </a>
-                <a class="card card-link" href="tv.html">
-                    <h3>TV</h3>
-                    <p>For entertainment, casting, and shared viewing.</p>
-                </a>
-            </div>
-        </div>
-    </section>
-</main>
-
-<footer class="footer">
-    <div class="footer-inner">
-        <div class="footer-left">
-            <div class="logo small">AuroralisOS</div>
-            <p class="footer-text">
-                Concept operating system ecosystem by Ethan. Not affiliated with Apple.
-            </p>
-        </div>
-        <div class="footer-right">
-            <a href="mailto:AuroralisOS.dev.services@gmail.com">Contact</a>
-        </div>
+          </div>
+        `).join("")}
     </div>
-</footer>
+  `;
 
-<script src="scripts/main.js"></script>
-</body>
-</html>
+  stepContainer.querySelectorAll(".list-item").forEach(item => {
+    item.addEventListener("click", () => {
+      state.language = item.dataset.lang;
+      renderLanguage();
+      nextBtn.disabled = false;
+    });
+  });
+}
 
+/* ============================================================
+   STEP 2 — REGION
+   ============================================================ */
+
+function renderRegion() {
+  stepContainer.innerHTML = `
+    <div class="step-title">Select your region</div>
+    <div class="step-subtitle">This sets your time zone and formats.</div>
+    <div class="list">
+      ${["United States", "Canada", "United Kingdom", "Europe", "Asia", "Australia"]
+        .map(region => `
+          <div class="list-item" data-region="${region}">
+            <div>${region}</div>
+            <div class="checkmark ${state.region === region ? "active" : ""}">
+              ${state.region === region ? "✓" : ""}
+            </div>
+          </div>
+        `).join("")}
+    </div>
+  `;
+
+  stepContainer.querySelectorAll(".list-item").forEach(item => {
+    item.addEventListener("click", () => {
+      state.region = item.dataset.region;
+      renderRegion();
+      nextBtn.disabled = false;
+    });
+  });
+}
+
+/* ============================================================
+   STEP 3 — WIFI
+   ============================================================ */
+
+function renderWifi() {
+  stepContainer.innerHTML = `
+    <div class="step-title">Connect to AuroralisOS network</div>
+    <div class="step-subtitle">Choose a network to continue setup.</div>
+    <div class="list">
+      <div class="list-item" data-wifi="main">
+        <div class="list-item-left">
+          <span class="wifi-icon">📶</span>
+          <div>
+            <div>AuroralisOS Main Server</div>
+            <div style="font-size:12px;color:#a1a1b3;">Password required</div>
+          </div>
+        </div>
+        <div>
+          <span class="lock-icon">🔒</span>
+          <span class="checkmark ${state.wifiChoice === "main" ? "active" : ""}">
+            ${state.wifiChoice === "main" ? "✓" : ""}
+          </span>
+        </div>
+      </div>
+
+      <div class="list-item" data-wifi="secondary">
+        <div class="list-item-left">
+          <span class="wifi-icon">📶</span>
+          <div>
+            <div>AuroralisOS Secondary Server</div>
+            <div style="font-size:12px;color:#a1a1b3;">No password</div>
+          </div>
+        </div>
+        <div>
+          <span class="checkmark ${state.wifiChoice === "secondary" ? "active" : ""}">
+            ${state.wifiChoice === "secondary" ? "✓" : ""}
+          </span>
+        </div>
+      </div>
+
+      <div class="list-item" data-wifi="custom">
+        <div class="list-item-left">
+          <span class="wifi-icon">➕</span>
+          <div>
+            <div>Add Your Own Network</div>
+            <div style="font-size:12px;color:#a1a1b3;">Create a custom network</div>
+          </div>
+        </div>
+        <div>
+          <span class="checkmark ${state.wifiChoice === "custom" ? "active" : ""}">
+            ${state.wifiChoice === "custom" ? "✓" : ""}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div id="wifiDetails" style="margin-top:16px;"></div>
+  `;
+
+  stepContainer.querySelectorAll(".list-item").forEach(item => {
+    item.addEventListener("click", () => {
+      state.wifiChoice = item.dataset.wifi;
+      renderWifi();
+      if (state.wifiChoice === "secondary") nextBtn.disabled = false;
+    });
+  });
+
+  const details = document.getElementById("wifiDetails");
+
+  if (state.wifiChoice === "main") {
+    details.innerHTML = `
+      <div class="field">
+        <label>Password for AuroralisOS Main Server</label>
+        <div class="field-inline">
+          <input type="${state.wifiPasswordVisible ? "text" : "password"}" id="mainPassword" placeholder="Enter password (hint: auroralis)" />
+          <button
