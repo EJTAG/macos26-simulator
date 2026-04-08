@@ -1,0 +1,8 @@
+{
+  "name": "auroralisos-site",
+  "version": "1.0.0",
+  "description": "Static multi-page site for AuroralisOS",
+  "scripts": {
+    "start": "static-server ."
+  }
+}
