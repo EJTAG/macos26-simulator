@@ -1,578 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>AuroralisOS Setup</title>
-<style>
-    * {
-        box-sizing: border-box;
-    }
-    body {
-        margin: 0;
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Arial, sans-serif;
-        background: #050509;
-        color: #fff;
-        overflow: hidden;
-    }
-    .screen {
-        position: absolute;
-        inset: 0;
-        padding: 40px 60px;
-        display: flex;
-        flex-direction: column;
-        opacity: 0;
-        transform: translateX(100%);
-        transition: transform 0.45s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.35s ease;
-        pointer-events: none;
-    }
-    .screen.active {
-        opacity: 1;
-        transform: translateX(0);
-        pointer-events: auto;
-    }
-    .screen.prev {
-        transform: translateX(-30%);
-        opacity: 0;
-    }
-    h1 {
-        font-size: 40px;
-        margin: 0 0 10px;
-    }
-    h2 {
-        font-size: 28px;
-        margin: 0 0 8px;
-    }
-    p {
-        margin: 6px 0 20px;
-        color: #c7c7d0;
-    }
-    .primary-btn, .secondary-btn {
-        border-radius: 999px;
-        padding: 10px 22px;
-        border: none;
-        font-size: 16px;
-        cursor: pointer;
-        margin-top: 20px;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-    }
-    .primary-btn {
-        background: #007aff;
-        color: #fff;
-    }
-    .primary-btn:active {
-        background: #0060c4;
-    }
-    .secondary-btn {
-        background: transparent;
-        color: #9fa0aa;
-    }
-    .list {
-        margin-top: 30px;
-        max-width: 520px;
-    }
-    .list-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 16px;
-        border-radius: 14px;
-        background: rgba(255,255,255,0.04);
-        margin-bottom: 10px;
-        cursor: pointer;
-        transition: background 0.2s, transform 0.15s;
-    }
-    .list-item:hover {
-        background: rgba(255,255,255,0.08);
-        transform: translateY(-1px);
-    }
-    .list-item-label {
-        display: flex;
-        flex-direction: column;
-    }
-    .list-item-title {
-        font-size: 16px;
-    }
-    .list-item-sub {
-        font-size: 12px;
-        color: #8f8fa0;
-    }
-    .wifi-bars {
-        font-size: 18px;
-        color: #4cd964;
-    }
-    .weak {
-        color: #ff3b30;
-    }
-    .medium {
-        color: #ffcc00;
-    }
-    .spinner {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        border: 3px solid rgba(255,255,255,0.15);
-        border-top-color: #ffffff;
-        animation: spin 0.9s linear infinite;
-        margin-top: 30px;
-    }
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-    .centered {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        height: 100%;
-        max-width: 520px;
-    }
-    .device-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 20px;
-        max-width: 720px;
-        margin-top: 30px;
-    }
-    .device-card {
-        background: radial-gradient(circle at top, #1b1b26, #101018);
-        border-radius: 22px;
-        padding: 18px 14px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        cursor: pointer;
-        border: 1px solid rgba(255,255,255,0.06);
-        transition: transform 0.18s ease, box-shadow 0.18s ease, border 0.18s ease;
-    }
-    .device-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 14px 30px rgba(0,0,0,0.6);
-        border-color: #4da3ff;
-    }
-    .device-icon {
-        font-size: 34px;
-        margin-bottom: 10px;
-    }
-    .device-name {
-        font-size: 15px;
-        margin-bottom: 4px;
-    }
-    .badge {
-        font-size: 11px;
-        padding: 2px 8px;
-        border-radius: 999px;
-        background: rgba(77,163,255,0.18);
-        color: #9ecbff;
-        margin-bottom: 6px;
-    }
-    .footer-note {
-        margin-top: auto;
-        font-size: 12px;
-        color: #6f6f80;
-    }
-    .input-row {
-        margin-top: 20px;
-        max-width: 320px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-    input[type="password"] {
-        padding: 10px 12px;
-        border-radius: 10px;
-        border: 1px solid rgba(255,255,255,0.18);
-        background: rgba(0,0,0,0.4);
-        color: #fff;
-        outline: none;
-        font-size: 15px;
-    }
-    input[type="password"]:focus {
-        border-color: #4da3ff;
-    }
-    .status-ok {
-        color: #4cd964;
-        font-size: 14px;
-        margin-top: 10px;
-    }
-    .status-fail {
-        color: #ff3b30;
-        font-size: 14px;
-        margin-top: 10px;
-    }
-    .checkmark {
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        border: 4px solid #4cd964;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 36px;
-        margin-bottom: 20px;
-        opacity: 0;
-        transform: scale(0.7);
-        animation: pop 0.5s ease forwards 0.3s;
-    }
-    @keyframes pop {
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-</style>
+    <meta charset="UTF-8">
+    <title>AuroralisOS Setup</title>
+    <link rel="stylesheet" href="styles/setup.css">
 </head>
+
 <body>
 
-<!-- Screen 1: Language -->
-<div class="screen active" id="screen-language">
-    <div class="centered">
-        <h1>Language</h1>
-        <p>Choose the language for AuroralisOS.</p>
+<!-- Wallpaper layers -->
+<div id="wallpaper-blur"></div>
+<div id="wallpaper-sharp"></div>
 
-        <div class="list">
-            <div class="list-item" onclick="nextScreen('screen-region')">
-                <div class="list-item-label">
-                    <span class="list-item-title">English (US)</span>
-                    <span class="list-item-sub">Only language available</span>
-                </div>
-            </div>
+<!-- LANGUAGE -->
+<div class="panel active" id="screen-language">
+    <div class="globe">🌐</div>
+    <h1>Language</h1>
+    <p>Select your language.</p>
+
+    <div class="list">
+        <div class="list-item" onclick="showScreen('screen-region')">English (US)</div>
+    </div>
+</div>
+
+<!-- REGION -->
+<div class="panel" id="screen-region">
+    <h1>Region</h1>
+    <p>Select your region.</p>
+
+    <div class="list">
+        <div class="list-item" onclick="showScreen('screen-wifi')">United States</div>
+        <div class="list-item" onclick="showScreen('screen-wifi')">Canada</div>
+        <div class="list-item" onclick="showScreen('screen-wifi')">United Kingdom</div>
+    </div>
+
+    <button class="btn-secondary" onclick="showScreen('screen-language')">Back</button>
+</div>
+
+<!-- WIFI -->
+<div class="panel" id="screen-wifi">
+    <h1>Wi‑Fi</h1>
+    <p>Select a network.</p>
+
+    <div class="list">
+        <div class="list-item" onclick="chooseWifi('main')">
+            Auroralis‑Main
+            <span class="wifi-bars strong">▂▃▅▇</span>
         </div>
 
-        <button class="primary-btn" onclick="nextScreen('screen-region')">
-            Continue
-        </button>
-    </div>
-</div>
-
-<!-- Screen 2: Region -->
-<div class="screen" id="screen-region">
-    <div class="centered">
-        <h1>Region</h1>
-        <p>Select your region. This won’t affect functionality.</p>
-
-        <div class="list">
-            <div class="list-item" onclick="nextScreen('screen-wifi')">
-                <div class="list-item-label">
-                    <span class="list-item-title">United States</span>
-                    <span class="list-item-sub">Recommended</span>
-                </div>
-            </div>
-            <div class="list-item" onclick="nextScreen('screen-wifi')">
-                <div class="list-item-label">
-                    <span class="list-item-title">Canada</span>
-                </div>
-            </div>
-            <div class="list-item" onclick="nextScreen('screen-wifi')">
-                <div class="list-item-label">
-                    <span class="list-item-title">United Kingdom</span>
-                </div>
-            </div>
+        <div class="list-item" onclick="chooseWifi('secondary')">
+            Auroralis‑Secondary
+            <span class="wifi-bars medium">▂▃▅</span>
         </div>
 
-        <button class="primary-btn" onclick="nextScreen('screen-wifi')">
-            Continue
-        </button>
-        <button class="secondary-btn" onclick="prevScreen('screen-language')">
-            Back
-        </button>
+        <div class="list-item" onclick="chooseWifi('custom')">
+            Verizon‑3FTWp0Q
+            <span class="wifi-bars weak">▂▃</span>
+        </div>
     </div>
+
+    <button class="btn-secondary" onclick="showScreen('screen-region')">Back</button>
 </div>
 
-<!-- Screen 3: Wi‑Fi -->
-<div class="screen" id="screen-wifi">
-    <div class="centered">
-        <h1>Wi‑Fi</h1>
-        <p>Connect to a Wi‑Fi network to continue setup.</p>
+<!-- WIFI PASSWORD -->
+<div class="panel" id="screen-password">
+    <h1>Enter Password</h1>
+    <p id="pw-label"></p>
 
-        <div class="list">
-            <div class="list-item" onclick="selectWifi('main')">
-                <div class="list-item-label">
-                    <span class="list-item-title">Auroralis‑Main</span>
-                    <span class="list-item-sub">Secure network</span>
-                </div>
-                <div class="wifi-bars">▂▃▅▇</div>
-            </div>
+    <input type="password" id="pw-input" class="pw-input">
+    <p id="pw-error" class="pw-error">Incorrect password</p>
 
-            <div class="list-item" onclick="selectWifi('secondary')">
-                <div class="list-item-label">
-                    <span class="list-item-title">Auroralis‑Secondary</span>
-                    <span class="list-item-sub">Open network</span>
-                </div>
-                <div class="wifi-bars medium">▂▃▅</div>
-            </div>
+    <button class="btn" onclick="confirmPassword()">Join</button>
+    <button class="btn-secondary" onclick="showScreen('screen-wifi')">Back</button>
+</div>
 
-            <div class="list-item" onclick="selectWifi('custom')">
-                <div class="list-item-label">
-                    <span class="list-item-title">Verizon‑3FTWp0Q</span>
-                    <span class="list-item-sub">Secure network</span>
-                </div>
-                <div class="wifi-bars weak">▂▃</div>
-            </div>
+<!-- CONNECTING -->
+<div class="panel" id="screen-connecting">
+    <h1>Connecting…</h1>
+    <div class="spinner"></div>
+</div>
+
+<!-- ELIGIBILITY -->
+<div class="panel" id="screen-eligibility">
+    <h1>Verifying your device is eligible…</h1>
+    <div class="spinner"></div>
+</div>
+
+<!-- FAIL -->
+<div class="panel" id="screen-fail">
+    <h1>Device Not Eligible</h1>
+    <p>Your network could not verify this device.</p>
+    <button class="btn" onclick="restartSetup()">Restart Setup</button>
+</div>
+
+<!-- DEVICE SELECTION -->
+<div class="panel" id="screen-devices">
+    <h1>Select Your Device</h1>
+    <p>Choose the device you're setting up.</p>
+
+    <div class="device-grid">
+
+        <div class="device-card" onclick="chooseDevice('AuroPC')">
+            <div class="badge">Recommended</div>
+            <div class="device-icon">💻</div>
+            AuroPC
         </div>
 
-        <button class="secondary-btn" onclick="prevScreen('screen-region')">
-            Back
-        </button>
-    </div>
-</div>
-
-<!-- Screen 3b: Wi‑Fi Password -->
-<div class="screen" id="screen-wifi-password">
-    <div class="centered">
-        <h1>Enter Password</h1>
-        <p id="wifi-password-label">Enter the password for this network.</p>
-
-        <div class="input-row">
-            <input type="password" id="wifi-password-input" placeholder="Password">
-            <span id="wifi-password-status" class="status-fail" style="display:none;">Incorrect password</span>
+        <div class="device-card" onclick="chooseDevice('AuroGame')">
+            <div class="badge">Recommended</div>
+            <div class="device-icon">🎮</div>
+            AuroGame
         </div>
 
-        <button class="primary-btn" onclick="confirmWifiPassword()">
-            Join
-        </button>
-        <button class="secondary-btn" onclick="prevScreen('screen-wifi')">
-            Back
-        </button>
-    </div>
-</div>
-
-<!-- Screen 3c: Wi‑Fi Connecting -->
-<div class="screen" id="screen-wifi-connecting">
-    <div class="centered">
-        <h1>Connecting…</h1>
-        <p>Joining your Wi‑Fi network.</p>
-        <div class="spinner"></div>
-    </div>
-</div>
-
-<!-- Screen 4: Eligibility Check -->
-<div class="screen" id="screen-eligibility">
-    <div class="centered">
-        <h1>Verifying your device is eligible…</h1>
-        <p>Checking AuroralisOS requirements using your network.</p>
-        <div class="spinner"></div>
-        <p class="footer-note">This may take a few moments.</p>
-    </div>
-</div>
-
-<!-- Screen 4b: Eligibility Failed -->
-<div class="screen" id="screen-eligibility-fail">
-    <div class="centered">
-        <h1>Device not eligible</h1>
-        <p>Your current network could not verify this device for AuroralisOS.</p>
-        <p class="status-fail">You can restart setup and try a different network.</p>
-
-        <button class="primary-btn" onclick="restartSetup()">
-            Restart Setup
-        </button>
-    </div>
-</div>
-
-<!-- Screen 5: Device Selection -->
-<div class="screen" id="screen-devices">
-    <div class="centered">
-        <h1>Choose your device</h1>
-        <p>Select the device you’re setting up.</p>
-
-        <div class="device-grid">
-            <!-- Recommended: AuroPC -->
-            <div class="device-card" onclick="selectDevice('AuroPC')">
-                <div class="badge">Recommended</div>
-                <div class="device-icon">💻</div>
-                <div class="device-name">AuroPC</div>
-            </div>
-
-            <!-- Recommended: AuroGame -->
-            <div class="device-card" onclick="selectDevice('AuroGame')">
-                <div class="badge">Recommended</div>
-                <div class="device-icon">🎮</div>
-                <div class="device-name">AuroGame</div>
-            </div>
-
-            <!-- Recommended: AuroPhone -->
-            <div class="device-card" onclick="selectDevice('AuroPhone')">
-                <div class="badge">Recommended</div>
-                <div class="device-icon">📱</div>
-                <div class="device-name">AuroPhone</div>
-            </div>
-
-            <!-- Other: AuroraBook -->
-            <div class="device-card" onclick="selectDevice('AuroraBook')">
-                <div class="device-icon">💼</div>
-                <div class="device-name">AuroraBook</div>
-            </div>
-
-            <!-- Other: AuroPad -->
-            <div class="device-card" onclick="selectDevice('AuroPad')">
-                <div class="device-icon">📘</div>
-                <div class="device-name">AuroPad</div>
-            </div>
-
-            <!-- Other: AuroralisTV -->
-            <div class="device-card" onclick="selectDevice('AuroralisTV')">
-                <div class="device-icon">📺</div>
-                <div class="device-name">AuroralisTV</div>
-            </div>
+        <div class="device-card" onclick="chooseDevice('AuroPhone')">
+            <div class="badge">Recommended</div>
+            <div class="device-icon">📱</div>
+            AuroPhone
         </div>
 
-        <button class="secondary-btn" onclick="prevScreen('screen-wifi')">
-            Back
-        </button>
+        <div class="device-card" onclick="chooseDevice('AuroraBook')">
+            <div class="device-icon">💼</div>
+            AuroraBook
+        </div>
+
+        <div class="device-card" onclick="chooseDevice('AuroPad')">
+            <div class="device-icon">📘</div>
+            AuroPad
+        </div>
+
+        <div class="device-card" onclick="chooseDevice('AuroralisTV')">
+            <div class="device-icon">📺</div>
+            AuroralisTV
+        </div>
     </div>
+
+    <button class="btn-secondary" onclick="showScreen('screen-wifi')">Back</button>
 </div>
 
-<!-- Screen 6: Setup Complete -->
-<div class="screen" id="screen-complete">
-    <div class="centered">
-        <div class="checkmark">✓</div>
-        <h1>Welcome to AuroralisOS</h1>
-        <p>Your device is ready. We’re finishing a few last details.</p>
-        <p class="footer-note">You’ll be taken to your device experience automatically.</p>
+<!-- THEME -->
+<div class="panel" id="screen-theme">
+    <h1>Appearance</h1>
+    <p>Choose Light or Dark Mode.</p>
+
+    <div class="theme-row">
+        <div class="theme-card" onclick="chooseTheme('light')">
+            <div class="theme-icon">🌞</div>
+            Light Mode
+        </div>
+
+        <div class="theme-card" onclick="chooseTheme('dark')">
+            <div class="theme-icon">🌙</div>
+            Dark Mode
+        </div>
     </div>
+
+    <button class="btn-secondary" onclick="showScreen('screen-devices')">Back</button>
 </div>
 
-<script>
-let currentScreenId = "screen-language";
-let selectedWifiType = null;
-let selectedWifiName = null;
+<!-- COMPLETE -->
+<div class="panel" id="screen-complete">
+    <div class="checkmark">✓</div>
+    <h1>Welcome to AuroralisOS</h1>
+    <p>Finishing setup…</p>
+</div>
 
-// On load: if setup already complete, redirect immediately
-(function autoRedirect() {
-    const setupDone = localStorage.getItem("auroralisSetupComplete");
-    const savedDevice = localStorage.getItem("auroralisDevice");
-    if (setupDone === "true" && savedDevice) {
-        redirectToDevice(savedDevice);
-    }
-})();
-
-function showScreen(id) {
-    const screens = document.querySelectorAll(".screen");
-    screens.forEach(s => {
-        s.classList.remove("active", "prev");
-        if (s.id === currentScreenId && s.id !== id) {
-            s.classList.add("prev");
-        }
-    });
-    const next = document.getElementById(id);
-    if (next) {
-        next.classList.add("active");
-        currentScreenId = id;
-    }
-}
-
-function nextScreen(id) {
-    showScreen(id);
-}
-
-function prevScreen(id) {
-    showScreen(id);
-}
-
-function selectWifi(type) {
-    selectedWifiType = type;
-    if (type === "main") {
-        selectedWifiName = "Auroralis‑Main";
-        document.getElementById("wifi-password-label").textContent =
-            "Enter the password for Auroralis‑Main.";
-        document.getElementById("wifi-password-input").value = "";
-        document.getElementById("wifi-password-status").style.display = "none";
-        nextScreen("screen-wifi-password");
-    } else if (type === "secondary") {
-        selectedWifiName = "Auroralis‑Secondary";
-        // No password
-        connectWifi();
-    } else if (type === "custom") {
-        selectedWifiName = "Verizon‑3FTWp0Q";
-        document.getElementById("wifi-password-label").textContent =
-            "Enter the password for Verizon‑3FTWp0Q.";
-        document.getElementById("wifi-password-input").value = "";
-        document.getElementById("wifi-password-status").style.display = "none";
-        nextScreen("screen-wifi-password");
-    }
-}
-
-function confirmWifiPassword() {
-    const input = document.getElementById("wifi-password-input").value;
-    const status = document.getElementById("wifi-password-status");
-
-    if (selectedWifiType === "main") {
-        if (input === "auroralis") {
-            status.style.display = "none";
-            connectWifi();
-        } else {
-            status.textContent = "Incorrect password";
-            status.style.display = "block";
-        }
-    } else if (selectedWifiType === "custom") {
-        if (input === "Verizon-3FTWq0Q") {
-            status.style.display = "none";
-            connectWifi();
-        } else {
-            status.textContent = "Incorrect password";
-            status.style.display = "block";
-        }
-    }
-}
-
-function connectWifi() {
-    nextScreen("screen-wifi-connecting");
-    setTimeout(() => {
-        runEligibilityCheck();
-    }, 1500);
-}
-
-function runEligibilityCheck() {
-    nextScreen("screen-eligibility");
-
-    let failChance = 0;
-    if (selectedWifiType === "main") failChance = 0.01;
-    if (selectedWifiType === "secondary") failChance = 0.25;
-    if (selectedWifiType === "custom") failChance = 0.50;
-
-    setTimeout(() => {
-        const roll = Math.random();
-        if (roll < failChance) {
-            nextScreen("screen-eligibility-fail");
-        } else {
-            nextScreen("screen-devices");
-        }
-    }, 2000);
-}
-
-function restartSetup() {
-    selectedWifiType = null;
-    selectedWifiName = null;
-    currentScreenId = "screen-language";
-    showScreen("screen-language");
-}
-
-function selectDevice(device) {
-    localStorage.setItem("auroralisDevice", device);
-    localStorage.setItem("auroralisSetupComplete", "true");
-    nextScreen("screen-complete");
-
-    setTimeout(() => {
-        redirectToDevice(device);
-    }, 1800);
-}
-
-function redirectToDevice(device) {
-    if (device === "AuroPC") {
-        window.location.href = "desktop.html";
-    } else if (device === "AuroPhone") {
-        window.location.href = "mobile.html";
-    } else if (device === "AuroPad") {
-        window.location.href = "tablet.html";
-    } else if (device === "AuroraBook") {
-        window.location.href = "desktop.html";
-    } else if (device === "AuroralisTV") {
-        window.location.href = "tv.html";
-    } else if (device === "AuroGame") {
-        window.location.href = "console.html";
-    }
-}
-</script>
-
+<script src="scripts/setup.js"></script>
 </body>
 </html>
