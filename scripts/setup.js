@@ -1,3 +1,25 @@
+//This is the Script For Index.html / Setup.css
+
+// ------------------------------
+// BOOT ANIMATION
+// ------------------------------
+window.addEventListener("load", () => {
+    const boot = document.getElementById("screen-boot");
+
+    // Boot duration: 5–10 seconds
+    const duration = Math.random() * (10000 - 5000) + 5000;
+
+    setTimeout(() => {
+        boot.classList.add("hidden");
+
+        // After fade-out, show Language screen
+        setTimeout(() => {
+            showScreen("screen-language");
+        }, 800);
+
+    }, duration);
+});
+
 // ------------------------------
 // GLOBAL STATE
 // ------------------------------
@@ -144,49 +166,4 @@ function applyThemeToPanels() {
     if (selectedTheme === "dark") {
         panels.forEach(p => {
             p.style.background = "rgba(28,28,30,0.55)";
-            p.style.color = "#fff";
-            p.style.backdropFilter = "blur(30px)";
-            p.style.width = "580px"; // slightly smaller for dark mode
-        });
-    } else {
-        panels.forEach(p => {
-            p.style.background = "rgba(255,255,255,0.65)";
-            p.style.color = "#000";
-            p.style.backdropFilter = "blur(30px)";
-            p.style.width = "620px";
-        });
-    }
-}
-
-// ------------------------------
-// REDIRECT
-// ------------------------------
-function redirectToDevice() {
-    switch (selectedDevice) {
-        case "AuroPC":
-            window.location.href = "desktop.html";
-            break;
-        case "AuroPhone":
-            window.location.href = "mobile.html";
-            break;
-        case "AuroPad":
-            window.location.href = "tablet.html";
-            break;
-        case "AuroraBook":
-            window.location.href = "desktop.html";
-            break;
-        case "AuroralisTV":
-            window.location.href = "tv.html";
-            break;
-        case "AuroGame":
-            window.location.href = "console.html";
-            break;
-    }
-}
-
-// ------------------------------
-// RESTART
-// ------------------------------
-function restartSetup() {
-    window.location.reload();
-}
+            p.style.color
