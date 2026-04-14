@@ -6,8 +6,8 @@
 window.addEventListener("load", () => {
     const boot = document.getElementById("screen-boot");
 
-    // Boot duration: 5–10 seconds
-    const duration = Math.random() * (10000 - 5000) + 5000;
+    // Random boot time: 5–20 seconds
+    const duration = Math.random() * (20000 - 5000) + 5000;
 
     setTimeout(() => {
         boot.classList.add("hidden");
@@ -166,4 +166,5 @@ function applyThemeToPanels() {
     if (selectedTheme === "dark") {
         panels.forEach(p => {
             p.style.background = "rgba(28,28,30,0.55)";
-            p.style.color
+            p.style.color = "#fff";
+            p.style.backdropFilter = "blur(30px
