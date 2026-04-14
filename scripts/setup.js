@@ -1,13 +1,11 @@
-//This is the Script For Index.html / Setup.css
-
 // ------------------------------
 // BOOT ANIMATION
 // ------------------------------
 window.addEventListener("load", () => {
     const boot = document.getElementById("screen-boot");
 
-    // Random boot time: 5–20 seconds
-    const duration = Math.random() * (20000 - 5000) + 5000;
+    // Boot duration: 5–10 seconds
+    const duration = Math.random() * (10000 - 5000) + 5000;
 
     setTimeout(() => {
         boot.classList.add("hidden");
@@ -156,15 +154,4 @@ function chooseTheme(mode) {
     showScreen("screen-complete");
 
     setTimeout(() => {
-        redirectToDevice();
-    }, 1800);
-}
-
-function applyThemeToPanels() {
-    const panels = document.querySelectorAll(".panel");
-
-    if (selectedTheme === "dark") {
-        panels.forEach(p => {
-            p.style.background = "rgba(28,28,30,0.55)";
-            p.style.color = "#fff";
-            p.style.backdropFilter = "blur(30px
+        redirectTo
